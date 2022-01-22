@@ -1,5 +1,8 @@
-function getVideoInfo() {
-  var videoURL = window.location.href;
+var convert = $("#convert")
+
+convert.on("click", function() {
+  var videoURL = $("#ytURL").val()
+  console.log("received after button click: ", videoURL)
   var extractAudioDomain = "http://localhost:8000/extract-audio";
   var downloadAudioDomain = "http://localhost:8000/download-audio"; 
 
@@ -14,6 +17,4 @@ function getVideoInfo() {
       window.open(downloadAudioDomain);
     };
   });
-};
-
-getVideoInfo();
+})
