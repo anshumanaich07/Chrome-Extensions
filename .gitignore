@@ -1,4 +1,4 @@
-./extract-yt-audio/extension/socket.io
-./extract-yt-audio/extension/scripts/jquery-3.6.0.min.js
-./extract-yt-audio/backend/go.mod
-./extract-yt-audio/backend/go.sum
+extract-yt-audio/extension/socket.io
+extract-yt-audio/extension/scripts/jquery-3.6.0.min.js
+extract-yt-audio/backend/go.mod
+extract-yt-audio/backend/go.sum
