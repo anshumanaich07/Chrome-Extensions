@@ -8,17 +8,6 @@
     "48": "downloadicon.png",
    "128": "demo.png" 
   },
-  "content_scripts": [
-    {
-      "matches": ["https://www.google.com/"],
-      "js": ["scripts/index.js"]
-    },
-    {
-      "matches": ["https://www.youtube.com/watch?v=*"],
-      "js": ["scripts/videoContent.js"],
-      "run_at": "document_end"
-    }
-  ],
   "action": {
     "default_icon": "convert_to_audio.png",
     "default_popup": "popup/popup.html"
