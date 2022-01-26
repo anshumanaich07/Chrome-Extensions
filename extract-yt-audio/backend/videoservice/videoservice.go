@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-type VideoResponse struct {
+type VideoReq struct {
 	URL string `json:"videoURL"`
 }
 
