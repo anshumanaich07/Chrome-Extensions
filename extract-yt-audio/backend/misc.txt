@@ -1,0 +1,5 @@
+Task: Get continous data from backend(percentage) 
+Options:	
+	sse
+	socket
+

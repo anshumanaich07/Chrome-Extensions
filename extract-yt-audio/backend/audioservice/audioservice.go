@@ -6,11 +6,8 @@ import (
 	"regexp"
 )
 
-func ConvertToAudio(ytURL string, audioTitle string) string {
+func ConvertToAudio(ytURL string, audioTitle string, c chan string) {
 	fmt.Println("youtube video URL: ", ytURL)
-
-	// ytVideoIDLength := 11
-	// ytVideoID := ytURL[len(ytURL)-ytVideoIDLength:]
 
 	//command format:  youtube-dl --extract-audio --audio-format mp3 <link>
 	cmdArgs := []string{}
@@ -24,12 +21,9 @@ func ConvertToAudio(ytURL string, audioTitle string) string {
 	cmd := exec.Command("youtube-dl", cmdArgs...)
 	stdout, _ := cmd.StdoutPipe()
 	oneByte := make([]byte, 100)
-	// bar := progressbar.Default(100)
-
 	cmd.Start()
 
 	for {
-		// bar.Add(1)
 		_, err := stdout.Read(oneByte)
 		if err != nil {
 			break
@@ -38,9 +32,8 @@ func ConvertToAudio(ytURL string, audioTitle string) string {
 
 		downloadStatus := r.Find(oneByte)
 		downloadStatusStr := string(downloadStatus)
-		fmt.Println(downloadStatusStr)
+		c <- downloadStatusStr
 	}
-
 	cmd.Wait()
-	return audioTitle
+	return
 }
