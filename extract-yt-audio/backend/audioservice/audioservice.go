@@ -2,11 +2,12 @@ package audioservice
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"os/exec"
-	"regexp"
 )
 
-func ConvertToAudio(ytURL string, audioTitle string, c chan string) {
+func ConvertToAudio(ytURL string, audioTitle string, w http.ResponseWriter) {
 	fmt.Println("youtube video URL: ", ytURL)
 
 	//command format:  youtube-dl --extract-audio --audio-format mp3 <link>
@@ -20,20 +21,23 @@ func ConvertToAudio(ytURL string, audioTitle string, c chan string) {
 
 	cmd := exec.Command("youtube-dl", cmdArgs...)
 	stdout, _ := cmd.StdoutPipe()
-	oneByte := make([]byte, 100)
+	// oneByte := make([]byte, 100)
 	cmd.Start()
+	io.Copy(w, stdout)
 
-	for {
-		_, err := stdout.Read(oneByte)
-		if err != nil {
-			break
-		}
-		r, _ := regexp.Compile("(100|(\\d{1,2}(\\.\\d+)*))%")
+	// for {
+	// 	_, err := stdout.Read(oneByte)
+	// 	if err != nil {
+	// 		break
+	// 	}
+	// 	r, _ := regexp.Compile("(100|(\\d{1,2}(\\.\\d+)*))%")
 
-		downloadStatus := r.Find(oneByte)
-		downloadStatusStr := string(downloadStatus)
-		c <- downloadStatusStr
-	}
+	// 	downloadStatus := r.Find(oneByte)
+	// 	_ = string(downloadStatus)
+	// 	// c <- downloadStatusStr
+	// }
 	cmd.Wait()
+	cmd.Process.Kill()
+
 	return
 }
