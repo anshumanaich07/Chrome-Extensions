@@ -16,6 +16,10 @@ import (
 
 var audioFile = ""
 
+func GetURL(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func Extract(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
@@ -56,66 +60,7 @@ func Extract(w http.ResponseWriter, r *http.Request) {
 	}
 	cmd.Wait()
 	cmd.Process.Kill()
-
-	// var videoReq videoservice.VideoReq
-	// json.NewDecoder(r.Body).Decode(&videoReq)
-
-	// videoInfo := videoservice.GetVideoInfo(videoReq.URL) // to get title of the video only
-
-	// prgChan := make(chan string) // // audioTitleChan := make(chan string)
-	// // var msg string
-
-	// go audioservice.ConvertToAudio(videoReq.URL, videoInfo.Title, w)
-	// w.Header().Set("Content-Type", "application/octet-stream")
-	// w.Header().Set("Content-Disposition", "attachment; filename="+videoInfo.Title)
-	// w.Header().Set("Content-Transfer-Encoding", "binary")
-	// <-prgChan
-	// // idx := 0
-	// // for {
-	// // 	idx += 1
-	// // 	// msg = <-prgChan
-	// // 	rcMsg = <-RCchan
-	// // 	// fmt.Println("download status from chan: ", msg)
-	// // 	// if msg == "100%" {
-	// // 	// 	break
-	// // 	// }
-	// // }
 }
-
-// func ExtractAudio(w http.ResponseWriter, r *http.Request) {
-// 	fmt.Println("Reached ExtractAudio handler....")
-// 	var videoReq videoservice.VideoReq
-// 	json.NewDecoder(r.Body).Decode(&videoReq)
-
-// 	sseServer := sse.New()
-// 	sseServer.CreateStream("messages")
-
-// 	fmt.Println("payload: ", videoReq)
-
-// 	go func() {
-// 		sseServer.Publish("messages", &sse.Event{
-// 			Data: []byte("ping"),
-// 		})
-// 	}()
-// 	sseServer.ServeHTTP(w, r)
-// 	videoInfo := videoservice.GetVideoInfo(videoReq.URL) // to get title of the video only
-
-// 	prgChan := make(chan string) // // audioTitleChan := make(chan string)
-// 	var msg string
-
-// 	go audioservice.ConvertToAudio(videoReq.URL, videoInfo.Title, prgChan)
-// 	idx := 0
-// 	for {
-// 		idx += 1
-// 		msg = <-prgChan
-// 		fmt.Println("download status from chan: ", msg)
-// 		if msg == "100%" {
-// 			break
-// 		}
-// 		w.Write([]byte(msg))
-// 	}
-// 	json.NewEncoder(w).Encode(struct{ Msg string }{fmt.Sprint("download")})
-// }
 
 func DownloadAudio(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Reached DownloadAudio handler....")
@@ -134,18 +79,11 @@ func DownloadAudio(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, audioFile)
 }
 
-func Progress(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "Keep-alive")
-}
-
 func main() {
 	router := mux.NewRouter()
 
+	router.HandleFunc("/get-url", GetURL)
 	router.HandleFunc("/extract-audio", Extract)
-	// router.HandleFunc("/extract-audio", ExtractAudio)
-	// router.HandleFunc("/download-audio", DownloadAudio)
 
 	port := ":8000"
 	fmt.Printf("Server started @ %s\n", port)
