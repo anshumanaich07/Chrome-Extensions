@@ -13,6 +13,7 @@ async function sendURL(domain, videoURL) {
 convert.on("click", function() {
   var videoURL = $("#ytURL").val()
   console.log("received after button click: ", videoURL);
+  var progressBar = $("#progressbar")
 
   var res;
   res = sendURL(getURLDomain, videoURL);
@@ -23,6 +24,9 @@ convert.on("click", function() {
       var source = new EventSource(extractAudioDomain);
       source.onmessage = function (event) {
         console.log('data received from backend: ', event.data);
+        progressBar.css("width", event.data)
+        progressBar.attr("aria-valuenow", event.data.length-1)
+        progressBar.text(event.data);
         if (event.data == "100%") { 
           source.close(); 
           window.open(downloadAudioDomain)
