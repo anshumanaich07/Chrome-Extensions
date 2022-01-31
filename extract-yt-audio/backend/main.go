@@ -2,22 +2,30 @@ package main
 
 import (
 	"encoding/json"
+	"extract-audio/audioservice"
 	"extract-audio/videoservice"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os/exec"
-	"regexp"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
-var audioFile = ""
+var (
+	audioURL  string
+	audioFile string
+)
 
 func GetURL(w http.ResponseWriter, r *http.Request) {
+	var videoReq videoservice.VideoReq
+	json.NewDecoder(r.Body).Decode(&videoReq)
+	audioURL = videoReq.URL
 
+	fmt.Println("Received URL: ", audioURL)
+
+	json.NewEncoder(w).Encode(struct{ Msg string }{fmt.Sprint("download")})
 }
 
 func Extract(w http.ResponseWriter, r *http.Request) {
@@ -25,41 +33,9 @@ func Extract(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 
-	var videoReq videoservice.VideoReq
-	json.NewDecoder(r.Body).Decode(&videoReq)
+	videoInfo := videoservice.GetVideoInfo(audioURL) // to get title of the video only
 
-	videoInfo := videoservice.GetVideoInfo(videoReq.URL) // to get title of the video only
-	ytURL := videoReq.URL
-	audioTitle := videoInfo.Title
-	fmt.Println("youtube video URL: ", ytURL)
-
-	//command format:  youtube-dl --extract-audio --audio-format mp3 <link>
-	cmdArgs := []string{}
-	cmdArgs = append(cmdArgs, "--extract-audio")
-	cmdArgs = append(cmdArgs, "--audio-format")
-	cmdArgs = append(cmdArgs, "mp3")
-	cmdArgs = append(cmdArgs, "--output")
-	cmdArgs = append(cmdArgs, audioTitle)
-	cmdArgs = append(cmdArgs, ytURL)
-
-	cmd := exec.Command("youtube-dl", cmdArgs...)
-	stdout, _ := cmd.StdoutPipe()
-	oneByte := make([]byte, 100)
-	cmd.Start()
-
-	for {
-		_, err := stdout.Read(oneByte)
-		if err != nil {
-			break
-		}
-		r, _ := regexp.Compile("(100|(\\d{1,2}(\\.\\d+)*))%")
-
-		downloadStatus := r.Find(oneByte)
-		statusStr := string(downloadStatus)
-		fmt.Fprintf(w, "%v\n", statusStr)
-	}
-	cmd.Wait()
-	cmd.Process.Kill()
+	audioservice.ConvertToAudio(audioURL, videoInfo.Title, w)
 }
 
 func DownloadAudio(w http.ResponseWriter, r *http.Request) {

@@ -2,14 +2,12 @@ package audioservice
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"os/exec"
+	"regexp"
 )
 
 func ConvertToAudio(ytURL string, audioTitle string, w http.ResponseWriter) {
-	fmt.Println("youtube video URL: ", ytURL)
-
 	//command format:  youtube-dl --extract-audio --audio-format mp3 <link>
 	cmdArgs := []string{}
 	cmdArgs = append(cmdArgs, "--extract-audio")
@@ -21,23 +19,29 @@ func ConvertToAudio(ytURL string, audioTitle string, w http.ResponseWriter) {
 
 	cmd := exec.Command("youtube-dl", cmdArgs...)
 	stdout, _ := cmd.StdoutPipe()
-	// oneByte := make([]byte, 100)
+	oneByte := make([]byte, 100)
+
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "Internal error", 500)
+		return
+	}
+
 	cmd.Start()
-	io.Copy(w, stdout)
 
-	// for {
-	// 	_, err := stdout.Read(oneByte)
-	// 	if err != nil {
-	// 		break
-	// 	}
-	// 	r, _ := regexp.Compile("(100|(\\d{1,2}(\\.\\d+)*))%")
+	for {
+		_, err := stdout.Read(oneByte)
+		if err != nil {
+			break
+		}
+		r, _ := regexp.Compile("(100|(\\d{1,2}(\\.\\d+)*))%")
 
-	// 	downloadStatus := r.Find(oneByte)
-	// 	_ = string(downloadStatus)
-	// 	// c <- downloadStatusStr
-	// }
+		downloadStatus := r.Find(oneByte)
+		statusStr := string(downloadStatus)
+		fmt.Fprintf(w, "data: %v\n\n", statusStr)
+		flusher.Flush()
+		fmt.Println(statusStr)
+	}
 	cmd.Wait()
 	cmd.Process.Kill()
-
-	return
 }
