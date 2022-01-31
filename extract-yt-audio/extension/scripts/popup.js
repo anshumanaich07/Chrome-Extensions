@@ -23,7 +23,6 @@ convert.on("click", function() {
     if (res.Msg == "download") {
       var source = new EventSource(extractAudioDomain);
       source.onmessage = function (event) {
-        console.log('data received from backend: ', event.data);
         progressBar.css("width", event.data)
         progressBar.attr("aria-valuenow", event.data.length-1)
         progressBar.text(event.data);
