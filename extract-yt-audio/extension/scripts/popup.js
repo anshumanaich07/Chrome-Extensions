@@ -23,7 +23,10 @@ convert.on("click", function() {
       var source = new EventSource(extractAudioDomain);
       source.onmessage = function (event) {
         console.log('data received from backend: ', event.data);
-        if (event.data == "100%") { source.close(); }
+        if (event.data == "100%") { 
+          source.close(); 
+          window.open(downloadAudioDomain)
+        }
       };
     }
   });

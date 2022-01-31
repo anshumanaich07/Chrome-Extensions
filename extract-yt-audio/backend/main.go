@@ -34,6 +34,7 @@ func Extract(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Connection", "keep-alive")
 
 	videoInfo := videoservice.GetVideoInfo(audioURL) // to get title of the video only
+	audioFile = videoInfo.Title
 
 	audioservice.ConvertToAudio(audioURL, videoInfo.Title, w)
 }
@@ -60,6 +61,7 @@ func main() {
 
 	router.HandleFunc("/get-url", GetURL)
 	router.HandleFunc("/extract-audio", Extract)
+	router.HandleFunc("/download-audio", DownloadAudio)
 
 	port := ":8000"
 	fmt.Printf("Server started @ %s\n", port)
