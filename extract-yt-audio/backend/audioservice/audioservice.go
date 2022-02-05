@@ -30,8 +30,7 @@ func ConvertToAudio(ytURL string, audioTitle string, w http.ResponseWriter) {
 	cmd.Start()
 
 	for {
-		_, err := stdout.Read(oneByte)
-		if err != nil {
+		if _, err := stdout.Read(oneByte); err != nil {
 			break
 		}
 		r, _ := regexp.Compile("(100|(\\d{1,2}(\\.\\d+)*))%")

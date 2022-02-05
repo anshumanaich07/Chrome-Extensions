@@ -52,7 +52,6 @@ func DownloadAudio(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Disposition", "attachment; filename="+audioFile)
 	w.Header().Set("Content-Transfer-Encoding", "binary")
 
-	// http.ServeContent(w, r, audioFile, time.Now(), bytes.NewReader(dat))
 	http.ServeFile(w, r, audioFile)
 }
 
